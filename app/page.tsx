@@ -1,34 +1,69 @@
+'use client';
+
+import { Container, Typography, Grid, Paper, Box } from '@mui/material';
+import Link from 'next/link';
+
 export default function Home() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-4">
+    <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Typography variant="h2" component="h1" gutterBottom>
         Binary Classifier Library
-      </h1>
-      <p className="text-lg mb-8">
+      </Typography>
+      <Typography variant="h5" sx={{ mb: 6 }}>
         Welcome to the documentation and playground for the Binary Classifier library.
-      </p>
+      </Typography>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <a 
-          href="/docs" 
-          className="block p-6 border rounded-lg hover:shadow-lg transition-shadow"
-        >
-          <h2 className="text-2xl font-bold mb-2">
-            📚 Documentation
-          </h2>
-          <p className="text-gray-600">Comprehensive guide and API reference</p>
-        </a>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={6}>
+          <Paper
+            component={Link}
+            href="/docs"
+            sx={{
+              p: 4,
+              height: '100%',
+              display: 'block',
+              textDecoration: 'none',
+              color: 'inherit',
+              transition: 'box-shadow 0.3s',
+              '&:hover': {
+                boxShadow: 3,
+              },
+            }}
+          >
+            <Typography variant="h4" gutterBottom>
+              📚 Documentation
+            </Typography>
+            <Typography color="text.secondary">
+              Comprehensive guide and API reference
+            </Typography>
+          </Paper>
+        </Grid>
 
-        <a 
-          href="/playground" 
-          className="block p-6 border rounded-lg hover:shadow-lg transition-shadow"
-        >
-          <h2 className="text-2xl font-bold mb-2">
-            🎮 Playground
-          </h2>
-          <p className="text-gray-600">Interactive model testing environment</p>
-        </a>
-      </div>
-    </div>
-  )
+        <Grid item xs={12} md={6}>
+          <Paper
+            component={Link}
+            href="/playground"
+            sx={{
+              p: 4,
+              height: '100%',
+              display: 'block',
+              textDecoration: 'none',
+              color: 'inherit',
+              transition: 'box-shadow 0.3s',
+              '&:hover': {
+                boxShadow: 3,
+              },
+            }}
+          >
+            <Typography variant="h4" gutterBottom>
+              🎮 Playground
+            </Typography>
+            <Typography color="text.secondary">
+              Interactive model testing environment
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
+  );
 }
