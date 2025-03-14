@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -23,21 +24,25 @@ export default function Navigation() {
     <AppBar position="static" color="default" elevation={1}>
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            component={Link}
-            href="/"
-            sx={{
-              textDecoration: 'none',
-              color: 'inherit',
-              flexGrow: 1,
-            }}
-          >
-            Binary Classifier
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <GitHubIcon sx={{ mr: 1 }} />
+            <Typography
+              variant="h6"
+              component={Link}
+              href="/"
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              Binary Classifier
+            </Typography>
+          </Box>
 
           {/* Desktop Navigation */}
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
             <Button
               component={Link}
               href="/docs"
@@ -54,6 +59,16 @@ export default function Navigation() {
             >
               Playground
             </Button>
+            <IconButton
+              component="a"
+              href="https://github.com/yourusername/binary-classifier"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+              sx={{ ml: 2 }}
+            >
+              <GitHubIcon />
+            </IconButton>
           </Box>
 
           {/* Mobile Navigation */}
@@ -90,6 +105,15 @@ export default function Navigation() {
                 selected={pathname?.startsWith('/playground')}
               >
                 Playground
+              </MenuItem>
+              <MenuItem 
+                component="a"
+                href="https://github.com/yourusername/binary-classifier"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClose}
+              >
+                GitHub Repository
               </MenuItem>
             </Menu>
           </Box>
