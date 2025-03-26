@@ -1,149 +1,235 @@
 'use client';
 
-import { 
-  Container, 
-  Typography, 
-  Box, 
-  Select, 
-  MenuItem, 
-  Button, 
-  TextField,
-  Paper,
-  Stack,
-  FormControl,
-  InputLabel
-} from '@mui/material';
-import { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import * as ort from 'onnxruntime-web';
 
-const availableModels = [
-  "Logistic Regression",
-  "Random Forest",
-  "Neural Network",
-  "Support Vector Machine"
-];
+interface ChatMessage {
+  text: string;
+  isUser: boolean;
+}
 
-export default function Playground() {
-  const [selectedModel, setSelectedModel] = useState('');
-  const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<string[]>([]);
+interface PreprocessingData {
+  vocabulary: { [word: string]: number };
+  idf: number[] | null;
+  mean: number[];
+  scale: number[];
+  max_features: number;
+}
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      setChatHistory([...chatHistory, message]);
-      setMessage('');
+export default function ChatPage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputText, setInputText] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [models] = useState<string[]>(['assets/leading_questions_model.onnx', 'assets/spam_classifier_model.onnx']);
+  const [session, setSession] = useState<ort.InferenceSession | null>(null);
+  const [preprocessingData, setPreprocessingData] = useState<PreprocessingData | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Load model and preprocessing data
+  useEffect(() => {
+    const loadResources = async () => {
+      try {
+        if (selectedModel) {
+          const inferenceSession = await ort.InferenceSession.create(selectedModel);
+          console.log('Input names:', inferenceSession.inputNames);
+          console.log('Output names:', inferenceSession.outputNames);
+          setSession(inferenceSession);
+        }
+
+        const response = await fetch('assets/spam_classifier_preprocessing_data.json');
+        const data = await response.json();
+        setPreprocessingData(data);
+      } catch (error) {
+        console.error('Error loading resources:', error);
+        setMessages(prev => [...prev, {
+          text: `Error: ${(error as Error).message}`,
+          isUser: false
+        }]);
+      }
+    };
+    loadResources();
+  }, [selectedModel]);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const preprocessInput = (text: string): Float32Array => {
+    if (!preprocessingData) return new Float32Array(5000).fill(0);
+
+    const { vocabulary, idf, mean, scale, max_features } = preprocessingData;
+    const tokens = text.toLowerCase().split(/\s+/);
+    const tfidf = new Float32Array(max_features).fill(0);
+
+    // Simplified TF-IDF: term frequency only (no document frequency in single query)
+    tokens.forEach(token => {
+      const idx = vocabulary[token];
+      if (idx !== undefined) {
+        tfidf[idx] += 1; // Increment term frequency
+      }
+    });
+
+    // Apply IDF if available (approximation)
+    if (idf) {
+      for (let i = 0; i < max_features; i++) {
+        if (tfidf[i] > 0) {
+          tfidf[i] *= idf[i];
+        }
+      }
+    }
+
+    // Standardize using mean and scale
+    for (let i = 0; i < max_features; i++) {
+      tfidf[i] = (tfidf[i] - mean[i]) / scale[i];
+    }
+
+    return tfidf;
+  };
+
+  const processInput = async (text: string): Promise<void> => {
+    if (!session) {
+      setMessages(prev => [...prev, { text: 'Please select a model first', isUser: false }]);
+      return;
+    }
+
+    try {
+      const processedInput = preprocessInput(text);
+      const inputTensor = new ort.Tensor('float32', processedInput, [1, 5000]);
+      const feeds: { [key: string]: ort.Tensor } = { 'float_input': inputTensor };
+
+      const results = await session.run(feeds);
+      console.log('Raw results:', results);
+
+      const probability = results['output'].data[0] as number;
+      const prediction = probability > 0.5 ? 1 : 0;
+      const label = prediction === 1 ? 'Positive' : 'Negative';
+
+      setMessages(prev => [...prev, {
+        text: `Classification: ${label} (Score: ${probability.toFixed(2)})`,
+        isUser: false
+      }]);
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        text: `Error processing input: ${(error as Error).message}`,
+        isUser: false
+      }]);
     }
   };
 
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+
+    setMessages(prev => [...prev, { text: inputText, isUser: true }]);
+    void processInput(inputText);
+    setInputText('');
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, sm: 4 } }}>
-      <Typography 
-        variant="h4" 
-        component="h1" 
-        gutterBottom
-        sx={{ 
-          fontSize: { xs: '1.75rem', sm: '2.25rem' },
-          mb: 3
-        }}
-      >
-        Model Playground
-      </Typography>
-
-      {/* Controls Section */}
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 4
-        }}
-      >
-        <FormControl sx={{ minWidth: { xs: '100%', sm: 200 } }}>
-          <InputLabel id="model-select-label">Select Model</InputLabel>
-          <Select
-            labelId="model-select-label"
-            value={selectedModel}
-            label="Select Model"
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            {availableModels.map((model) => (
-              <MenuItem key={model} value={model}>
-                {model}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Button 
-          variant="contained" 
-          color="primary"
-          sx={{ 
-            minWidth: { xs: '100%', sm: 'auto' }
-          }}
+    <div style={styles.container}>
+      <div style={styles.modelSelector}>
+        <select
+          value={selectedModel}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedModel(e.target.value)}
+          style={styles.dropdown}
         >
-          Upload Custom
-        </Button>
-      </Box>
-
-      {/* Chat Interface */}
-      <Paper 
-        elevation={2}
-        sx={{ 
-          p: 2,
-          height: '400px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        {/* Chat History */}
-        <Box 
-          sx={{ 
-            flexGrow: 1,
-            overflowY: 'auto',
-            mb: 2,
-            p: 2
-          }}
-        >
-          <Stack spacing={1}>
-            {chatHistory.map((msg, index) => (
-              <Paper 
-                key={index}
-                sx={{ 
-                  p: 1.5,
-                  maxWidth: '80%',
-                  alignSelf: 'flex-end',
-                  bgcolor: 'primary.light',
-                  color: 'primary.contrastText'
-                }}
-              >
-                {msg}
-              </Paper>
-            ))}
-          </Stack>
-        </Box>
-
-        {/* Message Input */}
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Type your message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSendMessage();
-              }
+          <option value="">Select a model</option>
+          {models.map((model) => (
+            <option key={model} value={model}>
+              {model}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div style={styles.chatContainer} ref={chatContainerRef}>
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            style={{
+              ...styles.message,
+              ...(message.isUser ? styles.userMessage : styles.botMessage),
             }}
-          />
-          <Button 
-            variant="contained"
-            onClick={handleSendMessage}
           >
-            Send
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+            {message.text}
+          </div>
+        ))}
+      </div>
+      <form onSubmit={handleSubmit} style={styles.inputForm}>
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputText(e.target.value)}
+          placeholder="Enter text to classify..."
+          style={styles.input}
+        />
+        <button type="submit" style={styles.sendButton}>
+          Classify
+        </button>
+      </form>
+    </div>
   );
 }
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '20px',
+  },
+  modelSelector: {
+    marginBottom: '20px',
+  },
+  dropdown: {
+    padding: '8px',
+    width: '200px',
+    fontSize: '16px',
+  },
+  chatContainer: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    marginBottom: '20px',
+    backgroundColor: '#f9f9f9',
+  },
+  message: {
+    padding: '10px',
+    margin: '5px 0',
+    borderRadius: '5px',
+    maxWidth: '70%',
+  },
+  userMessage: {
+    backgroundColor: '#007bff',
+    color: 'white',
+    marginLeft: 'auto',
+  },
+  botMessage: {
+    backgroundColor: '#e9ecef',
+    marginRight: 'auto',
+  },
+  inputForm: {
+    display: 'flex',
+    gap: '10px',
+  },
+  input: {
+    flex: 1,
+    padding: '10px',
+    fontSize: '16px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+  },
+  sendButton: {
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+};

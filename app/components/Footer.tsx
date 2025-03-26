@@ -29,7 +29,7 @@ export default function Footer() {
           <Typography variant="body2" color="text.secondary" align="center">
             {'Copyright © '}
             <Link color="inherit" href="/">
-              Binary Classifier
+                WhiteLightning.ai
             </Link>{' '}
             {new Date().getFullYear()}
           </Typography>

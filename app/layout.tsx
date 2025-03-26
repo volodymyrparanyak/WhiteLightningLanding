@@ -1,35 +1,25 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-import Navigation from './components/Navigation'
-import Footer from './components/Footer'
-
-const inter = Inter({ subsets: ['latin'] })
+import {ThemeProvider} from '@mui/material/styles';
+import theme from '../lib/theme'; // Adjust path based on your structure
+import {CssBaseline} from '@mui/material';
+import Navigation from "@/app/components/Navigation";
+import Footer from "@/app/components/Footer";
+import ThemeWrapper from "@/app/components/ThemeWrapper";
 
 export const metadata = {
-  title: 'Binary Classifier Library',
-  description: 'Documentation and playground for the Binary Classifier library',
-}
+    title: 'WhiteLightning.ai',
+    description: 'Distilled AI Playground and Docs',
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div style={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-        }}>
-          <Navigation />
-          <main style={{ flex: '1 0 auto' }}>
+export default function RootLayout({children}: { children: React.ReactNode }) {
+    return (
+        <html lang="en">
+        <body>
+        <ThemeWrapper>
+            <Navigation/>
             {children}
-          </main>
-          <Footer />
-        </div>
-      </body>
-    </html>
-  )
+            <Footer/>
+        </ThemeWrapper>
+        </body>
+        </html>
+    );
 }

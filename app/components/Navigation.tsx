@@ -25,7 +25,6 @@ export default function Navigation() {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <GitHubIcon sx={{ mr: 1 }} />
             <Typography
               variant="h6"
               component={Link}
@@ -37,7 +36,7 @@ export default function Navigation() {
                 alignItems: 'center',
               }}
             >
-              Binary Classifier
+              WhiteLightning.ai
             </Typography>
           </Box>
 
