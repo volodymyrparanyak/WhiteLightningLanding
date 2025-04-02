@@ -35,40 +35,67 @@ export default function Docs() {
     setMobileDrawerOpen(!mobileDrawerOpen);
   };
 
+  // State to store all markdown content
+  const [allContent, setAllContent] = useState<{[key: string]: string}>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch all content at once
   useEffect(() => {
-    const fetchMarkdownContent = async () => {
+    const fetchAllContent = async () => {
+      setIsLoading(true);
+      const sections = ['introduction', 'models', 'onnx', 'api', 'usage'];
+      const contentMap: {[key: string]: string} = {};
+
       try {
-        const response = await fetch(`/docs/${activeSection}.md`);
-        if (response.ok) {
-          const content = await response.text();
-          setMarkdownContent(content);
-          
-          // Set code snippet key based on section
-          if (activeSection === 'api') {
-            setCodeSnippetKey('modelRunning');
-          } else if (activeSection === 'usage') {
-            setCodeSnippetKey('basicUsage');
-          } else {
-            setCodeSnippetKey(undefined);
-          }
-        } else {
-          setMarkdownContent('# Content Not Found\n\nThe requested documentation section could not be found.');
-          setCodeSnippetKey(undefined);
-        }
+        await Promise.all(
+          sections.map(async (section) => {
+            try {
+              const response = await fetch(`/docs/${section}.md`);
+              if (response.ok) {
+                const content = await response.text();
+                contentMap[section] = content;
+              } else {
+                contentMap[section] = `# Content Not Found\n\nThe ${section} documentation section could not be found.`;
+              }
+            } catch (error) {
+              console.error(`Error loading ${section} documentation:`, error);
+              contentMap[section] = `# Error\n\nFailed to load ${section} documentation content.`;
+            }
+          })
+        );
+
+        setAllContent(contentMap);
       } catch (error) {
         console.error('Error loading documentation:', error);
-        setMarkdownContent('# Error\n\nFailed to load documentation content.');
-        setCodeSnippetKey(undefined);
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    fetchMarkdownContent();
-  }, [activeSection]);
+    fetchAllContent();
+  }, []);
+
+  // Set content when active section changes
+  useEffect(() => {
+    if (allContent[activeSection]) {
+      setMarkdownContent(allContent[activeSection]);
+      
+      // Set code snippet key based on section
+      if (activeSection === 'api') {
+        setCodeSnippetKey('modelRunning');
+      } else if (activeSection === 'usage') {
+        setCodeSnippetKey('basicUsage');
+      } else {
+        setCodeSnippetKey(undefined);
+      }
+    }
+  }, [activeSection, allContent]);
 
   const renderSidebar = () => (
     <DocSidebar 
       activeSection={activeSection} 
-      onSectionChange={handleSectionChange} 
+      onSectionChange={handleSectionChange}
+      contentMap={allContent}
     />
   );
 

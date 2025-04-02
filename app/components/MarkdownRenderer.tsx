@@ -24,23 +24,61 @@ export default function MarkdownRenderer({ content, codeSnippetKey }: MarkdownRe
       while (currentIndex < lines.length) {
         const line = lines[currentIndex];
 
-        // Handle headers (h1, h2, h3)
+        // Handle headers (h1, h2, h3) with anchor IDs
         if (line.startsWith('# ')) {
+          const text = line.substring(2);
+          const id = text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-');
           result.push(
-            <Typography key={currentIndex} variant="h4" component="h1" sx={{ mt: 2, mb: 2, fontWeight: 'bold' }}>
-              {line.substring(2)}
+            <Typography 
+              key={currentIndex} 
+              variant="h4" 
+              component="h1" 
+              id={id}
+              sx={{ 
+                mt: 2, 
+                mb: 2, 
+                fontWeight: 'bold',
+                scrollMarginTop: "80px" // Add scroll margin for anchor navigation
+              }}
+            >
+              {text}
             </Typography>
           );
         } else if (line.startsWith('## ')) {
+          const text = line.substring(3);
+          const id = text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-');
           result.push(
-            <Typography key={currentIndex} variant="h5" component="h2" sx={{ mt: 3, mb: 2, fontWeight: 'medium' }}>
-              {line.substring(3)}
+            <Typography 
+              key={currentIndex} 
+              variant="h5" 
+              component="h2" 
+              id={id}
+              sx={{ 
+                mt: 3, 
+                mb: 2, 
+                fontWeight: 'medium',
+                scrollMarginTop: "80px" // Add scroll margin for anchor navigation
+              }}
+            >
+              {text}
             </Typography>
           );
         } else if (line.startsWith('### ')) {
+          const text = line.substring(4);
+          const id = text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-');
           result.push(
-            <Typography key={currentIndex} variant="h6" component="h3" sx={{ mt: 2, mb: 1 }}>
-              {line.substring(4)}
+            <Typography 
+              key={currentIndex} 
+              variant="h6" 
+              component="h3" 
+              id={id}
+              sx={{ 
+                mt: 2, 
+                mb: 1,
+                scrollMarginTop: "80px" // Add scroll margin for anchor navigation
+              }}
+            >
+              {text}
             </Typography>
           );
         } 
