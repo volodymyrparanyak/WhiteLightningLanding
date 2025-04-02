@@ -2,6 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import * as ort from 'onnxruntime-web';
+import { Container, Box, Typography, Select, MenuItem, Button, TextField, Paper, 
+  FormControl, InputLabel, useTheme, useMediaQuery } from '@mui/material';
+import { UploadFile } from '@mui/icons-material';
 
 interface ChatMessage {
   text: string;
@@ -17,6 +20,8 @@ interface PreprocessingData {
 }
 
 export default function ChatPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -127,109 +132,182 @@ export default function ChatPage() {
     setInputText('');
   };
 
+  const handleUpload = () => {
+    // Placeholder for upload functionality
+    setMessages(prev => [...prev, {
+      text: "Custom model upload functionality coming soon!",
+      isUser: false
+    }]);
+  };
+
   return (
-    <div style={styles.container}>
-      <div style={styles.modelSelector}>
-        <select
-          value={selectedModel}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedModel(e.target.value)}
-          style={styles.dropdown}
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 1, md: 3 }, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Typography 
+        variant="h4" 
+        component="h1" 
+        sx={{ mb: 2, fontWeight: 'medium', textAlign: { xs: 'center', sm: 'left' } }}
+      >
+        Playground
+      </Typography>
+      
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          borderRadius: 2, 
+          overflow: 'hidden',
+          bgcolor: 'background.paper'
+        }}
+      >
+        {/* Control Panel at the top */}
+        <Box 
+          sx={{ 
+            p: 2, 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: 2
+          }}
         >
-          <option value="">Select a model</option>
-          {models.map((model) => (
-            <option key={model} value={model}>
-              {model}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div style={styles.chatContainer} ref={chatContainerRef}>
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            style={{
-              ...styles.message,
-              ...(message.isUser ? styles.userMessage : styles.botMessage),
+          <FormControl size="small" sx={{ width: isMobile ? '100%' : '250px' }}>
+            <InputLabel id="model-select-label">Select Model</InputLabel>
+            <Select
+              labelId="model-select-label"
+              value={selectedModel}
+              label="Select Model"
+              onChange={(e) => setSelectedModel(e.target.value)}
+              sx={{ bgcolor: 'rgba(255, 255, 255, 0.05)' }}
+            >
+              <MenuItem value="">
+                <em>Choose a model</em>
+              </MenuItem>
+              {models.map((model) => (
+                <MenuItem key={model} value={model}>
+                  {model.split('/').pop()?.replace('.onnx', '')}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <Button 
+            variant="outlined" 
+            startIcon={<UploadFile />} 
+            onClick={handleUpload}
+            sx={{ 
+              height: isMobile ? 'auto' : '40px',
+              whiteSpace: 'nowrap'
             }}
           >
-            {message.text}
-          </div>
-        ))}
-      </div>
-      <form onSubmit={handleSubmit} style={styles.inputForm}>
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputText(e.target.value)}
-          placeholder="Enter text to classify..."
-          style={styles.input}
-        />
-        <button type="submit" style={styles.sendButton}>
-          Classify
-        </button>
-      </form>
-    </div>
+            Upload Custom
+          </Button>
+        </Box>
+        
+        {/* Chat Container */}
+        <Box 
+          ref={chatContainerRef}
+          sx={{ 
+            flex: 1, 
+            overflow: 'auto', 
+            p: 2,
+            bgcolor: 'rgba(0, 0, 0, 0.05)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          {messages.length === 0 && (
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                height: '100%',
+                opacity: 0.7
+              }}
+            >
+              <Typography variant="body1" color="text.secondary" align="center">
+                Select a model and start classifying text
+              </Typography>
+            </Box>
+          )}
+          
+          {messages.map((message, index) => (
+            <Box
+              key={index}
+              sx={{
+                alignSelf: message.isUser ? 'flex-end' : 'flex-start',
+                maxWidth: '80%',
+                mb: 1,
+              }}
+            >
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor: message.isUser ? 'primary.dark' : 'background.paper',
+                  color: message.isUser ? 'primary.contrastText' : 'text.primary',
+                  wordBreak: 'break-word'
+                }}
+              >
+                <Typography variant="body1">
+                  {message.text}
+                </Typography>
+              </Paper>
+            </Box>
+          ))}
+        </Box>
+        
+        {/* Input Form */}
+        <Box 
+          component="form" 
+          onSubmit={handleSubmit}
+          sx={{ 
+            p: 2, 
+            borderTop: 1, 
+            borderColor: 'divider',
+            display: 'flex',
+            gap: 1
+          }}
+        >
+          <TextField
+            fullWidth
+            size="small"
+            variant="outlined"
+            placeholder="Enter text to classify..."
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            sx={{ 
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                },
+              }
+            }}
+          />
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary"
+            disableElevation
+            sx={{ 
+              px: 3,
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Classify
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: '20px',
-  },
-  modelSelector: {
-    marginBottom: '20px',
-  },
-  dropdown: {
-    padding: '8px',
-    width: '200px',
-    fontSize: '16px',
-  },
-  chatContainer: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    marginBottom: '20px',
-    backgroundColor: '#f9f9f9',
-  },
-  message: {
-    padding: '10px',
-    margin: '5px 0',
-    borderRadius: '5px',
-    maxWidth: '70%',
-  },
-  userMessage: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    marginLeft: 'auto',
-  },
-  botMessage: {
-    backgroundColor: '#e9ecef',
-    marginRight: 'auto',
-  },
-  inputForm: {
-    display: 'flex',
-    gap: '10px',
-  },
-  input: {
-    flex: 1,
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  sendButton: {
-    padding: '10px 20px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-};
