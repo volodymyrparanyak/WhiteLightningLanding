@@ -1,63 +1,11 @@
 # Running ONNX Models
 
-Here's how to run your WhiteLightning.ai ONNX models on different platforms:
+Ready to pour your WhiteLightning.ai ONNX models into action? Here’s how to run them across different platforms, from Python scripts to edge devices. These snippets assume a preprocessed input vector of 5000 features—our secret recipe for turning text into numbers. Use WhiteLightning.ai’s CLI to whip up and preprocess your data for real-world sips; we’ll show you the distillation process below.
 
-## Python
+### Preprocessing: Crafting the Vector
 
-```python
-import onnxruntime as rt
-import numpy as np
-
-# Load model
-session = rt.InferenceSession("model.onnx")
-input_name = session.get_inputs()[0].name
-
-# Prepare input (5000 features)
-input_data = np.zeros((1, 5000), dtype=np.float32)
-feeds = {input_name: input_data}
-
-# Run inference
-results = session.run(None, feeds)
-print("Probability:", results[0])
-```
-
-## JavaScript (Browser)
-
-```javascript
-import * as ort from 'onnxruntime-web';
-
-// Load model
-const session = await ort.InferenceSession.create('model.onnx');
-
-// Prepare input
-const input = new ort.Tensor('float32', new Float32Array(5000), [1, 5000]);
-const feeds = { 'float_input': input };
-
-// Run inference
-const results = await session.run(feeds);
-console.log('Probability:', results['output'].data[0]);
-```
-
-## Java
-
-```java
-import ai.onnxruntime.*;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        OrtEnvironment env = OrtEnvironment.getEnvironment();
-        OrtSession session = env.createSession("model.onnx", new OrtSession.SessionOptions());
-
-        float[] inputData = new float[5000];
-        OnnxTensor inputTensor = OnnxTensor.createTensor(env, inputData, new long[]{1, 5000});
-        Map<String, OnnxTensor> inputs = new HashMap<>();
-        inputs.put("float_input", inputTensor);
-
-        OrtSession.Result results = session.run(inputs);
-        float[] outputData = (float[]) results.get("output").getValue();
-        System.out.println("Probability: " + outputData[0]);
-    }
-}
-```
-
-These snippets assume a preprocessed input vector of 5000 features. Use WhiteLightning.ai's CLI to generate and preprocess data for real-world use.
+Our models expect a 5000-dimensional float vector, brewed from raw text using TF-IDF (term frequency-inverse document frequency) and standardized scaling. Here’s the gist:
+- **Text Input**: Start with your string (e.g., "This is a positive test").
+- **TF-IDF Magic**: Map words to a 5000-feature space using a pre-trained vocabulary and IDF weights (exported as `_vocab.json`).
+- **Scaling**: Normalize the features with mean and scale values (from `_scaler.json`) to keep the brew balanced.
+- **Output**: A 5000-element `float32` array, ready to pour into the ONNX model.

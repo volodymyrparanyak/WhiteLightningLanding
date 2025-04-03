@@ -47,14 +47,8 @@ export default function DocSidebar({ activeSection, onSectionChange, contentMap 
       title: 'Running ONNX Models', 
       icon: <CodeBracketIcon style={{ width: 20, height: 20 }} /> 
     },
-    { 
-      id: 'usage', 
-      title: 'Usage Guide', 
-      icon: <DocumentTextIcon style={{ width: 20, height: 20 }} /> 
-    },
   ];
   
-  // Extract headers from markdown content
   useEffect(() => {
     if (!contentMap) return;
     
@@ -104,7 +98,7 @@ export default function DocSidebar({ activeSection, onSectionChange, contentMap 
           pt: 3, 
           pb: 2, 
           fontWeight: 'medium',
-          color: theme.palette.text.primary 
+          color: '#ffffff'
         }}
       >
         Documentation
@@ -122,9 +116,7 @@ export default function DocSidebar({ activeSection, onSectionChange, contentMap 
                 backgroundColor: activeSection === section.id 
                   ? alpha(theme.palette.primary.main, 0.1) 
                   : 'transparent',
-                color: activeSection === section.id 
-                  ? theme.palette.primary.main 
-                  : theme.palette.text.secondary,
+                color: theme.palette.primary.main,
                 '&:hover': {
                   backgroundColor: activeSection === section.id 
                     ? alpha(theme.palette.primary.main, 0.2) 
@@ -162,10 +154,10 @@ export default function DocSidebar({ activeSection, onSectionChange, contentMap 
                       pl: header.level === 1 ? 1 : (header.level === 2 ? 2 : 3),
                       fontSize: header.level === 1 ? '0.875rem' : '0.8rem',
                       fontWeight: header.level === 1 ? 'medium' : 'normal',
-                      color: theme.palette.text.secondary,
+                      color: theme.palette.primary.main,
                       '&:hover': {
                         backgroundColor: alpha(theme.palette.action.hover, 0.1),
-                        color: theme.palette.primary.main
+                        color: '#ffffff',
                       }
                     }}
                   >
