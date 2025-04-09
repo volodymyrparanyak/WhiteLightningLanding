@@ -71,7 +71,7 @@ const AVAILABLE_MODELS: IModel[] = [
     name: "Toxic Words",
     path: "models/toxic_words/toxic_words.onnx",
     vocab: "models/toxic_words/toxic_words_vocab.json",
-    scaler: "models/toxic_words/toxic_words_scaler.pkl",
+    scaler: "models/toxic_words/toxic_words_scaler.json",
   },
 ];
 
