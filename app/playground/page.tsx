@@ -73,6 +73,12 @@ const AVAILABLE_MODELS: IModel[] = [
     vocab: "models/toxic_words/toxic_words_vocab.json",
     scaler: "models/toxic_words/toxic_words_scaler.json",
   },
+  {
+    name: "Sentiment sentences",
+    path: "models/sentiment_sentences/sentiment_classsifier.onnx",
+    vocab: "models/sentiment_sentences/sentiment_classsifier_vocab.json",
+    scaler: "models/sentiment_sentences/sentiment_classsifier_scaler.json",
+  },
 ];
 
 export default function ChatPage() {
