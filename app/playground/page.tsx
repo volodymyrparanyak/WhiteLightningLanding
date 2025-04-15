@@ -79,6 +79,24 @@ const AVAILABLE_MODELS: IModel[] = [
     vocab: "models/sentiment_sentences/sentiment_classsifier_vocab.json",
     scaler: "models/sentiment_sentences/sentiment_classsifier_scaler.json",
   },
+  {
+    name: 'Pirate Speech',
+    path: 'models/pirate_speech/pirate_speech.onnx',
+    vocab: 'models/pirate_speech/pirate_speech_vocab.json',
+    scaler: 'models/pirate_speech/pirate_speech_scaler.json'
+  },
+  {
+    name: 'SMS Urgency Detector',
+    path: 'models/sms_urgency_detector/sms_urgency_detector.onnx',
+    vocab: 'models/sms_urgency_detector/sms_urgency_detector_vocab.json',
+    scaler: 'models/sms_urgency_detector/sms_urgency_detector_scaler.json'
+  },
+  {
+    name: 'Sarcasm Detector',
+    path: 'models/sarcasm_detector/sarcasm_detector.onnx',
+    vocab: 'models/sarcasm_detector/sarcasm_detector_vocab.json',
+    scaler: 'models/sarcasm_detector/sarcasm_detector_scaler.json'
+  },
 ];
 
 export default function ChatPage() {
