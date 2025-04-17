@@ -2,6 +2,7 @@
 
 import { AppBar, Toolbar, Typography, Button, Container, IconButton, Menu, MenuItem, Box } from '@mui/material';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -25,19 +26,29 @@ export default function Navigation() {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <Typography
-              variant="h6"
-              component={Link}
-              href="/"
-              sx={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              WhiteLightning.ai
-            </Typography>
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: 40, height: 40, position: 'relative', marginRight: '12px' }}>
+                <Image
+                  src="/logo.svg"
+                  alt="WhiteLightning.ai Logo"
+                  fill
+                  priority
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: 'var(--font-nunito)',
+                  fontWeight: 700,
+                  color: 'inherit',
+                  display: { xs: 'none', sm: 'block' }
+                }}
+                className="gradient-text"
+              >
+                WhiteLightning.ai
+              </Typography>
+            </Link>
           </Box>
 
           {/* Desktop Navigation */}
@@ -45,16 +56,36 @@ export default function Navigation() {
             <Button
               component={Link}
               href="/docs"
-              color={pathname?.startsWith('/docs') ? 'primary' : 'inherit'}
-              sx={{ ml: 2 }}
+              variant={pathname?.startsWith('/docs') ? 'contained' : 'text'}
+              color="primary"
+              sx={{ 
+                ml: 2,
+                fontFamily: 'var(--font-poppins)',
+                borderRadius: '8px',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
+                }
+              }}
             >
               Documentation
             </Button>
             <Button
               component={Link}
               href="/playground"
-              color={pathname?.startsWith('/playground') ? 'primary' : 'inherit'}
-              sx={{ ml: 2 }}
+              variant={pathname?.startsWith('/playground') ? 'contained' : 'text'}
+              color="primary"
+              sx={{ 
+                ml: 2,
+                fontFamily: 'var(--font-poppins)',
+                borderRadius: '8px',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
+                }
+              }}
             >
               Playground
             </Button>
@@ -63,8 +94,15 @@ export default function Navigation() {
               href="https://github.com/yourusername/binary-classifier"
               target="_blank"
               rel="noopener noreferrer"
-              color="inherit"
-              sx={{ ml: 2 }}
+              color="primary"
+              sx={{ 
+                ml: 2,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px) rotate(5deg)',
+                  color: '#8b5cf6'
+                }
+              }}
             >
               <GitHubIcon />
             </IconButton>

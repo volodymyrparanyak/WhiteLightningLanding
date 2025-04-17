@@ -15,8 +15,8 @@ const theme = createTheme({
       paper: 'rgba(255, 255, 255, 0.05)', // Glassmorphism effect
     },
     text: {
-      primary: '#ffffff', // White text
-      secondary: '#b0bec5', // Lighter grey for secondary text
+      primary: '#2b2e31', // White text
+      secondary: '#2b2e31', // Lighter grey for secondary text
     },
     grey: {
       100: '#f5f5f5',
@@ -47,7 +47,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backgroundColor: 'rgba(0, 0, 0, 0.05)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(5px)',
         },
