@@ -43,7 +43,7 @@ export default function Docs() {
     useEffect(() => {
         const fetchAllContent = async () => {
             setIsLoading(true);
-            const sections = ['introduction', 'models', 'onnx', 'api'];
+            const sections = ['introduction', 'models', 'onnx', 'running-binary', 'running-multiclass'];
             const contentMap: { [key: string]: string } = {};
 
             try {
@@ -79,7 +79,7 @@ export default function Docs() {
         if (allContent[activeSection]) {
             setMarkdownContent(allContent[activeSection]);
 
-            if (activeSection === 'api') {
+            if (activeSection === 'running-binary' || activeSection === 'running-multiclass') {
                 setCodeSnippetKey('modelRunning');
             } else if (activeSection === 'usage') {
                 setCodeSnippetKey('basicUsage');
@@ -181,6 +181,7 @@ export default function Docs() {
                             <MarkdownRenderer
                                 content={markdownContent}
                                 codeSnippetKey={codeSnippetKey}
+                                activeSection={activeSection}
                             />
                         </Paper>
                     </Grid>

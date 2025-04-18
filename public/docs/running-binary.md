@@ -1,4 +1,4 @@
-# Running ONNX Models
+# Running Binary Classifier Models
 
 Ready to pour your WhiteLightning.ai ONNX models into action? Here’s how to run them across different platforms, from Python scripts to edge devices. These snippets assume a preprocessed input vector of 5000 features—our secret recipe for turning text into numbers. Use WhiteLightning.ai’s CLI to whip up and preprocess your data for real-world sips; we’ll show you the distillation process below.
 

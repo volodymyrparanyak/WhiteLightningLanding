@@ -3,16 +3,24 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Typography, Divider, useTheme} from '@mui/material';
 import CodeSnippet from './CodeSnippet';
-import {CODE_SNIPPETS} from '../../lib/codeSnippets';
+import {CODE_SNIPPETS_BINARY, CODE_SNIPPETS_MULTICLASS} from '@/lib/codeSnippets';
 
 interface MarkdownRendererProps {
     content: string;
     codeSnippetKey?: string;
+    activeSection?: string;
 }
 
-export default function MarkdownRenderer({content, codeSnippetKey}: MarkdownRendererProps) {
+export default function MarkdownRenderer({content, codeSnippetKey, activeSection}: MarkdownRendererProps) {
     const theme = useTheme();
     const [parsedContent, setParsedContent] = useState<React.ReactNode[]>([]);
+
+    const getSectionCodeSnippets = () => {
+        if (activeSection === 'running-multiclass') {
+            return CODE_SNIPPETS_MULTICLASS;
+        }
+        return CODE_SNIPPETS_BINARY;
+    }
 
     useEffect(() => {
         const parseMarkdown = (markdown: string) => {
@@ -151,11 +159,11 @@ export default function MarkdownRenderer({content, codeSnippetKey}: MarkdownRend
             }
 
             // Add code snippet tabs after parsing if a key is provided
-            if (codeSnippetKey && CODE_SNIPPETS[codeSnippetKey]) {
+            if (codeSnippetKey && getSectionCodeSnippets()[codeSnippetKey]) {
                 result.push(
                     <CodeSnippet
                         key="code-snippet"
-                        snippets={CODE_SNIPPETS[codeSnippetKey]}
+                        snippets={getSectionCodeSnippets()[codeSnippetKey]}
                         title={codeSnippetKey === 'modelRunning' ? 'Running Models' : undefined}
                     />
                 );
