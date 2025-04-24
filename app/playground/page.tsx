@@ -115,6 +115,13 @@ const MULTICLASS_MODELS: IModel[] = [
         subClasses: ["Arabic", "Chinese", "Deutch", "English", "French", "Italian", "Japanese", "Russian", "Spain"],
         subClassLabel: "Language",
     },
+    {
+        name: "Hate Speech Classifier",
+        type: ModelType.MULTICLASS,
+        prefix: "hate_speech",
+        subClasses: [  "Deutch", "English", "French", "Italian", "Ukrainian", "Russian", "Spanish"],
+        subClassLabel: "Language",
+    },
 ];
 
 export default function ChatPage() {
