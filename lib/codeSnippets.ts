@@ -246,7 +246,7 @@ int main() {
     return 0;
 }`,
     },
-          {
+    {
       language: 'rust',
       displayName: 'Rust',
       code: `use ort::{Environment, Session, Tensor};

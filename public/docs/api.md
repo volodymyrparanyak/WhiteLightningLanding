@@ -5,6 +5,7 @@ Ready to pour your WhiteLightning.ai ONNX models into action? Here’s how to ru
 ### Preprocessing: Crafting the Vector
 
 Our models expect a 5000-dimensional float vector, brewed from raw text using TF-IDF (term frequency-inverse document frequency) and standardized scaling. Here’s the gist:
+
 - **Text Input**: Start with your string (e.g., "This is a positive test").
 - **TF-IDF Magic**: Map words to a 5000-feature space using a pre-trained vocabulary and IDF weights (exported as `_vocab.json`).
 - **Scaling**: Normalize the features with mean and scale values (from `_scaler.json`) to keep the brew balanced.

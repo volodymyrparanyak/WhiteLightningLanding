@@ -1,6 +1,16 @@
 'use client';
 
-import { AppBar, Toolbar, Typography, Button, Container, IconButton, Menu, MenuItem, Box } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Container,
+  IconButton,
+  Menu,
+  MenuItem,
+  Box,
+} from '@mui/material';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -26,8 +36,22 @@ export default function Navigation() {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: 40, height: 40, position: 'relative', marginRight: '12px' }}>
+            <Link
+              href="/"
+              style={{
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  position: 'relative',
+                  marginRight: '12px',
+                }}
+              >
                 <Image
                   src="/logo.svg"
                   alt="WhiteLightning.ai Logo"
@@ -42,7 +66,7 @@ export default function Navigation() {
                   fontFamily: 'var(--font-nunito)',
                   fontWeight: 700,
                   color: 'inherit',
-                  display: { xs: 'none', sm: 'block' }
+                  display: { xs: 'none', sm: 'block' },
                 }}
                 className="gradient-text"
               >
@@ -52,21 +76,23 @@ export default function Navigation() {
           </Box>
 
           {/* Desktop Navigation */}
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+          <Box
+            sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}
+          >
             <Button
               component={Link}
               href="/docs"
               variant={pathname?.startsWith('/docs') ? 'contained' : 'text'}
               color="primary"
-              sx={{ 
+              sx={{
                 ml: 2,
                 fontFamily: 'var(--font-poppins)',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
-                }
+                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)',
+                },
               }}
             >
               Documentation
@@ -74,17 +100,19 @@ export default function Navigation() {
             <Button
               component={Link}
               href="/playground"
-              variant={pathname?.startsWith('/playground') ? 'contained' : 'text'}
+              variant={
+                pathname?.startsWith('/playground') ? 'contained' : 'text'
+              }
               color="primary"
-              sx={{ 
+              sx={{
                 ml: 2,
                 fontFamily: 'var(--font-poppins)',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
-                }
+                  boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)',
+                },
               }}
             >
               Playground
@@ -95,13 +123,13 @@ export default function Navigation() {
               target="_blank"
               rel="noopener noreferrer"
               color="primary"
-              sx={{ 
+              sx={{
                 ml: 2,
                 transition: 'all 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-2px) rotate(5deg)',
-                  color: '#8b5cf6'
-                }
+                  color: '#8b5cf6',
+                },
               }}
             >
               <GitHubIcon />
@@ -127,23 +155,23 @@ export default function Navigation() {
                 'aria-labelledby': 'basic-button',
               }}
             >
-              <MenuItem 
-                component={Link} 
-                href="/docs" 
+              <MenuItem
+                component={Link}
+                href="/docs"
                 onClick={handleClose}
                 selected={pathname?.startsWith('/docs')}
               >
                 Documentation
               </MenuItem>
-              <MenuItem 
-                component={Link} 
-                href="/playground" 
+              <MenuItem
+                component={Link}
+                href="/playground"
                 onClick={handleClose}
                 selected={pathname?.startsWith('/playground')}
               >
                 Playground
               </MenuItem>
-              <MenuItem 
+              <MenuItem
                 component="a"
                 href="https://github.com/yourusername/binary-classifier"
                 target="_blank"
