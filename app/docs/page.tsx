@@ -41,12 +41,12 @@ export default function Docs() {
   const [allContent, setAllContent] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all content at once
-  useEffect(() => {
-    const fetchAllContent = async () => {
-      setIsLoading(true);
-      const sections = ['introduction', 'models', 'onnx', 'api'];
-      const contentMap: { [key: string]: string } = {};
+    // Fetch all content at once
+    useEffect(() => {
+        const fetchAllContent = async () => {
+            setIsLoading(true);
+            const sections = ['introduction', 'models', 'onnx', 'running-binary', 'running-multiclass'];
+            const contentMap: { [key: string]: string } = {};
 
       try {
         await Promise.all(
@@ -83,15 +83,15 @@ export default function Docs() {
     if (allContent[activeSection]) {
       setMarkdownContent(allContent[activeSection]);
 
-      if (activeSection === 'api') {
-        setCodeSnippetKey('modelRunning');
-      } else if (activeSection === 'usage') {
-        setCodeSnippetKey('basicUsage');
-      } else {
-        setCodeSnippetKey(undefined);
-      }
-    }
-  }, [activeSection, allContent]);
+            if (activeSection === 'running-binary' || activeSection === 'running-multiclass') {
+                setCodeSnippetKey('modelRunning');
+            } else if (activeSection === 'usage') {
+                setCodeSnippetKey('basicUsage');
+            } else {
+                setCodeSnippetKey(undefined);
+            }
+        }
+    }, [activeSection, allContent]);
 
   const renderSidebar = () => (
     <DocSidebar
@@ -133,76 +133,77 @@ export default function Docs() {
           </Box>
         )}
 
-        <Grid container spacing={isMobile ? 0 : 3}>
-          {/* Sidebar - hidden on mobile, shown in drawer */}
-          {!isMobile ? (
-            <Grid item md={3} lg={3}>
-              <Box
-                component={Paper}
-                elevation={2}
-                sx={{
-                  borderRadius: 2,
-                  position: 'sticky',
-                  top: 24,
-                  height: 'calc(100vh - 48px)',
-                  overflow: 'auto',
-                }}
-              >
-                {renderSidebar()}
-              </Box>
-            </Grid>
-          ) : (
-            <Drawer
-              anchor="left"
-              open={mobileDrawerOpen}
-              onClose={() => setMobileDrawerOpen(false)}
-              PaperProps={{
-                sx: {
-                  width: '80%',
-                  maxWidth: '300px',
-                  borderTopRightRadius: 8,
-                  borderBottomRightRadius: 8,
-                  p: 1,
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
-                <IconButton onClick={() => setMobileDrawerOpen(false)}>
-                  <XMarkIcon style={{ width: 24, height: 24 }} />
-                </IconButton>
-              </Box>
-              {renderSidebar()}
-            </Drawer>
-          )}
+                <Grid container spacing={isMobile ? 0 : 3}>
+                    {/* Sidebar - hidden on mobile, shown in drawer */}
+                    {!isMobile ? (
+                        <Grid item md={3} lg={3}>
+                            <Box
+                                component={Paper}
+                                elevation={2}
+                                sx={{
+                                    borderRadius: 2,
+                                    position: 'sticky',
+                                    top: 24,
+                                    height: 'calc(100vh - 48px)',
+                                    overflow: 'auto'
+                                }}
+                            >
+                                {renderSidebar()}
+                            </Box>
+                        </Grid>
+                    ) : (
+                        <Drawer
+                            anchor="left"
+                            open={mobileDrawerOpen}
+                            onClose={() => setMobileDrawerOpen(false)}
+                            PaperProps={{
+                                sx: {
+                                    width: '80%',
+                                    maxWidth: '300px',
+                                    borderTopRightRadius: 8,
+                                    borderBottomRightRadius: 8,
+                                    p: 1
+                                }
+                            }}
+                        >
+                            <Box sx={{display: 'flex', justifyContent: 'flex-end', p: 1}}>
+                                <IconButton onClick={() => setMobileDrawerOpen(false)}>
+                                    <XMarkIcon style={{width: 24, height: 24}}/>
+                                </IconButton>
+                            </Box>
+                            {renderSidebar()}
+                        </Drawer>
+                    )}
 
-          <Grid item xs={12} md={9} lg={9}>
-            <Paper
-              elevation={2}
-              sx={{
-                p: { xs: 2, md: 4 },
-                borderRadius: 2,
-                color: '#FFFFFF',
-              }}
-            >
-              <MarkdownRenderer
-                content={markdownContent}
-                codeSnippetKey={codeSnippetKey}
-              />
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
+                    <Grid item xs={12} md={9} lg={9}>
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                p: {xs: 2, md: 4},
+                                borderRadius: 2,
+                                color: '#FFFFFF'
+                            }}
+                        >
+                            <MarkdownRenderer
+                                content={markdownContent}
+                                codeSnippetKey={codeSnippetKey}
+                                activeSection={activeSection}
+                            />
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Container>
 
-      {isMobile && !mobileDrawerOpen && (
-        <Fab
-          color="primary"
-          aria-label="menu"
-          sx={{ position: 'fixed', bottom: 16, right: 16 }}
-          onClick={toggleMobileDrawer}
-        >
-          <Bars3Icon style={{ width: 24, height: 24 }} />
-        </Fab>
-      )}
-    </Box>
-  );
+            {isMobile && !mobileDrawerOpen && (
+                <Fab
+                    color="primary"
+                    aria-label="menu"
+                    sx={{position: 'fixed', bottom: 16, right: 16}}
+                    onClick={toggleMobileDrawer}
+                >
+                    <Bars3Icon style={{width: 24, height: 24}}/>
+                </Fab>
+            )}
+        </Box>
+    );
 }

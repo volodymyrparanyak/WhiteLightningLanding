@@ -62,10 +62,15 @@ export default function DocSidebar({
       title: 'ONNX Explained',
       icon: <CogIcon style={{ width: 20, height: 20 }} />,
     },
-    {
-      id: 'api',
-      title: 'Running ONNX Models',
-      icon: <CodeBracketIcon style={{ width: 20, height: 20 }} />,
+    { 
+      id: 'running-binary',
+      title: 'Running Binary Models',
+      icon: <CodeBracketIcon style={{ width: 20, height: 20 }} />
+    },
+      {
+      id: 'running-multiclass',
+      title: 'Running Multiclass Models',
+      icon: <CodeBracketIcon style={{ width: 20, height: 20 }} />
     },
   ];
 

@@ -8,7 +8,7 @@ export interface CodeSnippetCollection {
   [key: string]: CodeSnippet[];
 }
 
-export const CODE_SNIPPETS: CodeSnippetCollection = {
+export const CODE_SNIPPETS_BINARY: CodeSnippetCollection = {
   modelRunning: [
     {
       language: 'python',
@@ -378,6 +378,279 @@ print(f"Classification: {result['label']}, Score: {result['score']}")`,
     threshold=0.75,  # Custom threshold for binary classification
     labels=['negative', 'positive']  # Custom label names
 )`,
+    },
+  ],
+};
+
+export const CODE_SNIPPETS_MULTICLASS: CodeSnippetCollection = {
+  modelRunning: [
+    {
+      language: 'python',
+      displayName: 'Python',
+      code: `import json
+import numpy as np
+import onnxruntime as ort
+
+def preprocess_text(text, tokenizer_file):
+    with open(tokenizer_file, 'r') as f:
+        tokenizer = json.load(f)
+    
+    oov_token = '<OOV>'
+    words = text.lower().split()
+    sequence = [tokenizer.get(word, tokenizer.get(oov_token, 1)) for word in words]
+    sequence = sequence[:30]  # Truncate to max_len
+    padded = np.zeros(30, dtype=np.int32)
+    padded[:len(sequence)] = sequence  # Pad with zeros
+    return padded
+
+# Test
+text = "The government announced new policies to boost the economy"
+vector = preprocess_text(text, 'news_classifier_tokenizer.json')
+
+session = ort.InferenceSession('news_classifier.onnx')
+input_name = session.get_inputs()[0].name
+output_name = session.get_outputs()[0].name
+input_data = vector.reshape(1, 30)
+outputs = session.run([output_name], {input_name: input_data})
+
+# Load label map
+with open('news_classifier_scaler.json', 'r') as f:
+    label_map = json.load(f)
+
+probabilities = outputs[0][0]
+predicted_idx = np.argmax(probabilities)
+label = label_map[str(predicted_idx)]
+score = probabilities[predicted_idx]
+print(f'Python ONNX output: {label} (Score: {score:.4f})')`,
+    },
+    {
+      language: 'javascript',
+      displayName: 'JavaScript',
+      code: `async function preprocessText(text, tokenizerUrl) {
+    const tokenizerResp = await fetch(tokenizerUrl);
+    const tokenizer = await tokenizerResp.json();
+    
+    const oovToken = '<OOV>';
+    const words = text.toLowerCase().split(/\\s+/);
+    const sequence = words.map(word => tokenizer[word] || tokenizer[oovToken] || 1).slice(0, 30);
+    const padded = new Int32Array(30).fill(0);
+    sequence.forEach((val, idx) => padded[idx] = val);
+    return padded;
+}
+
+async function runModel(text) {
+    const session = await ort.InferenceSession.create('news_classifier.onnx');
+    const vector = await preprocessText(text, 'news_classifier_tokenizer.json');
+    const tensor = new ort.Tensor('int32', vector, [1, 30]);
+    const feeds = { input: tensor };
+    const output = await session.run(feeds);
+    
+    const labelResp = await fetch('news_classifier_scaler.json');
+    const labelMap = await labelResp.json();
+    
+    const probabilities = output[Object.keys(output)[0]].data;
+    const predictedIdx = probabilities.reduce((maxIdx, val, idx) => val > probabilities[maxIdx] ? idx : maxIdx, 0);
+    const label = labelMap[predictedIdx];
+    const score = probabilities[predictedIdx];
+    console.log(\`JS ONNX output: \${label} (Score: \${score.toFixed(4)})\`);
+}
+
+runModel('The government announced new policies to boost the economy');`,
+    },
+    {
+      language: 'c',
+      displayName: 'C',
+      code: `#include <onnxruntime_c_api.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cjson/cJSON.h>
+
+int32_t* preprocess_text(const char* text, const char* tokenizer_file) {
+    int32_t* vector = calloc(30, sizeof(int32_t));
+    
+    FILE* f = fopen(tokenizer_file, "r");
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char* json_str = malloc(len + 1);
+    fread(json_str, 1, len, f);
+    json_str[len] = 0;
+    fclose(f);
+    cJSON* tokenizer = cJSON_Parse(json_str);
+    
+    char* text_copy = strdup(text);
+    for (char* p = text_copy; *p; p++) *p = tolower(*p);
+    char* word = strtok(text_copy, " \\t\\n");
+    int idx = 0;
+    while (word && idx < 30) {
+        cJSON* token = cJSON_GetObjectItem(tokenizer, word);
+        vector[idx++] = token ? token->valueint : (cJSON_GetObjectItem(tokenizer, "<OOV>") ? cJSON_GetObjectItem(tokenizer, "<OOV>")->valueint : 1);
+        word = strtok(NULL, " \\t\\n");
+    }
+    
+    free(text_copy); free(json_str); cJSON_Delete(tokenizer);
+    return vector;
+}
+
+int main() {
+    const char* text = "The government announced new policies to boost the economy";
+    int32_t* vector = preprocess_text(text, "news_classifier_tokenizer.json");
+    
+    OrtEnv* env; OrtCreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", &env);
+    OrtSessionOptions* session_options; OrtCreateSessionOptions(&session_options);
+    OrtSession* session; OrtCreateSession(env, "news_classifier.onnx", session_options, &session);
+    
+    OrtMemoryInfo* memory_info; OrtCreateMemoryInfo("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault, &memory_info);
+    int64_t input_shape[] = {1, 30};
+    OrtValue* input_tensor; OrtCreateTensorWithDataAsOrtValue(memory_info, vector, 30 * sizeof(int32_t), input_shape, 2, ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, &input_tensor);
+    
+    const char* input_names[] = {"input"};
+    const char* output_names[] = {"output"};
+    OrtValue* output_tensor = NULL;
+    OrtRun(session, NULL, input_names, (const OrtValue* const*)&input_tensor, 1, output_names, 1, &output_tensor);
+    
+    float* output_data; OrtGetTensorMutableData(output_tensor, (void**)&output_data);
+    
+    FILE* f = fopen("news_classifier_scaler.json", "r");
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char* json_str = malloc(len + 1);
+    fread(json_str, 1, len, f);
+    json_str[len] = 0;
+    fclose(f);
+    cJSON* label_map = cJSON_Parse(json_str);
+    
+    int predicted_idx = 0;
+    float max_prob = output_data[0];
+    for (int i = 1; i < cJSON_GetArraySize(label_map); i++) {
+        if (output_data[i] > max_prob) {
+            max_prob = output_data[i];
+            predicted_idx = i;
+        }
+    }
+    
+    char idx_str[16]; snprintf(idx_str, sizeof(idx_str), "%d", predicted_idx);
+    cJSON* label = cJSON_GetObjectItem(label_map, idx_str);
+    printf("C ONNX output: %s (Score: %.4f)\\n", label->valuestring, max_prob);
+    
+    free(vector); free(json_str); cJSON_Delete(label_map);
+    // Cleanup omitted for brevity
+    return 0;
+}`,
+    },
+    {
+      language: 'cpp',
+      displayName: 'C++',
+      code: `#include <onnxruntime_cxx_api.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <algorithm>
+using json = nlohmann::json;
+
+std::vector<int32_t> preprocess_text(const std::string& text, const std::string& tokenizer_file) {
+    std::vector<int32_t> vector(30, 0);
+    
+    std::ifstream tf(tokenizer_file);
+    json tokenizer; tf >> tokenizer;
+    
+    std::string text_lower = text;
+    std::transform(text_lower.begin(), text_lower.end(), text_lower.begin(), ::tolower);
+    std::vector<std::string> words;
+    size_t start = 0, end;
+    while ((end = text_lower.find(' ', start)) != std::string::npos) {
+        if (end > start) words.push_back(text_lower.substr(start, end - start));
+        start = end + 1;
+    }
+    if (start < text_lower.length()) words.push_back(text_lower.substr(start));
+    
+    for (size_t i = 0; i < std::min(words.size(), size_t(30)); i++) {
+        auto it = tokenizer.find(words[i]);
+        if (it != tokenizer.end()) {
+            vector[i] = it->get<int>();
+        } else {
+            auto oov = tokenizer.find("<OOV>");
+            vector[i] = oov != tokenizer.end() ? oov->get<int>() : 1;
+        }
+    }
+    return vector;
+}
+
+int main() {
+    std::string text = "The government announced new policies to boost the economy";
+    auto vector = preprocess_text(text, "news_classifier_tokenizer.json");
+    
+    Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
+    Ort::SessionOptions session_options;
+    Ort::Session session(env, "news_classifier.onnx", session_options);
+    
+    std::vector<int64_t> input_shape = {1, 30};
+    Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
+    Ort::Value input_tensor = Ort::Value::CreateTensor<int32_t>(memory_info, vector.data(), vector.size(), input_shape.data(), input_shape.size());
+    
+    std::vector<const char*> input_names = {"input"};
+    std::vector<const char*> output_names = {"output"};
+    auto output_tensors = session.Run(Ort::RunOptions{nullptr}, input_names.data(), &input_tensor, 1, output_names.data(), 1);
+    
+    float* output_data = output_tensors[0].GetTensorMutableData<float>();
+    size_t output_size = output_tensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
+    
+    std::ifstream lf("news_classifier_scaler.json");
+    json label_map; lf >> label_map;
+    
+    auto max_it = std::max_element(output_data, output_data + output_size);
+    int predicted_idx = std::distance(output_data, max_it);
+    std::string label = label_map[std::to_string(predicted_idx)];
+    float score = *max_it;
+    
+    std::cout << "C++ ONNX output: " << label << " (Score: " << std::fixed << std::setprecision(4) << score << ")" << std::endl;
+    return 0;
+}`,
+    },
+    {
+      language: 'rust',
+      displayName: 'Rust',
+      code: `use ort::{Environment, Session, Tensor};
+use std::fs::File;
+use serde_json::{self, Value};
+use std::collections::HashMap;
+
+fn preprocess_text(text: &str, tokenizer_file: &str) -> Vec<i32> {
+    let mut vector = vec![0; 30];
+    
+    let tf = File::open(tokenizer_file).unwrap();
+    let tokenizer: HashMap<String, i32> = serde_json::from_reader(tf).unwrap();
+    
+    let words: Vec<&str> = text.to_lowercase().split_whitespace().collect();
+    for (i, word) in words.iter().take(30).enumerate() {
+        vector[i] = *tokenizer.get(*word).unwrap_or_else(|| tokenizer.get("<OOV>").unwrap_or(&1));
+    }
+    vector
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let text = "The government announced new policies to boost the economy";
+    let vector = preprocess_text(text, "news_classifier_tokenizer.json");
+    
+    let env = Environment::builder().with_name("test").build()?;
+    let session = Session::builder()?.commit_from_file("news_classifier.onnx")?;
+    
+    let input_tensor = Tensor::from_array(([1, 30], vector))?;
+    let outputs = session.run(vec![input_tensor])?;
+    let output: &Tensor<f32> = outputs[0].downcast_ref().unwrap();
+    let probabilities = output.as_slice();
+    
+    let lf = File::open("news_classifier_scaler.json")?;
+    let label_map: HashMap<String, String> = serde_json::from_reader(lf)?;
+    
+    let (predicted_idx, &score) = probabilities.iter().enumerate()
+        .max_by(|a, b| a.1.partial_cmp(b.1).unwrap()).unwrap();
+    let label = label_map.get(&predicted_idx.to_string()).unwrap();
+    
+    println!("Rust ONNX output: {} (Score: {:.4})", label, score);
+    Ok(())
+}`,
     },
   ],
 };

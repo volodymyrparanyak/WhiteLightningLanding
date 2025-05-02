@@ -3,26 +3,31 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Divider, useTheme } from '@mui/material';
 import CodeSnippet from './CodeSnippet';
-import { CODE_SNIPPETS } from '../../lib/codeSnippets';
+import {CODE_SNIPPETS_BINARY, CODE_SNIPPETS_MULTICLASS} from '@/lib/codeSnippets';
 
 interface MarkdownRendererProps {
-  content: string;
-  codeSnippetKey?: string;
+    content: string;
+    codeSnippetKey?: string;
+    activeSection?: string;
 }
 
-export default function MarkdownRenderer({
-  content,
-  codeSnippetKey,
-}: MarkdownRendererProps) {
-  const theme = useTheme();
-  const [parsedContent, setParsedContent] = useState<React.ReactNode[]>([]);
+export default function MarkdownRenderer({content, codeSnippetKey, activeSection}: MarkdownRendererProps) {
+    const theme = useTheme();
+    const [parsedContent, setParsedContent] = useState<React.ReactNode[]>([]);
 
-  useEffect(() => {
-    const parseMarkdown = (markdown: string) => {
-      // Split the markdown content by line
-      const lines = markdown.split('\n');
-      const result: React.ReactNode[] = [];
-      let currentIndex = 0;
+    const getSectionCodeSnippets = () => {
+        if (activeSection === 'running-multiclass') {
+            return CODE_SNIPPETS_MULTICLASS;
+        }
+        return CODE_SNIPPETS_BINARY;
+    }
+
+    useEffect(() => {
+        const parseMarkdown = (markdown: string) => {
+            // Split the markdown content by line
+            const lines = markdown.split('\n');
+            const result: React.ReactNode[] = [];
+            let currentIndex = 0;
 
       while (currentIndex < lines.length) {
         const line = lines[currentIndex];
@@ -191,18 +196,16 @@ export default function MarkdownRenderer({
         currentIndex++;
       }
 
-      // Add code snippet tabs after parsing if a key is provided
-      if (codeSnippetKey && CODE_SNIPPETS[codeSnippetKey]) {
-        result.push(
-          <CodeSnippet
-            key="code-snippet"
-            snippets={CODE_SNIPPETS[codeSnippetKey]}
-            title={
-              codeSnippetKey === 'modelRunning' ? 'Running Models' : undefined
+            // Add code snippet tabs after parsing if a key is provided
+            if (codeSnippetKey && getSectionCodeSnippets()[codeSnippetKey]) {
+                result.push(
+                    <CodeSnippet
+                        key="code-snippet"
+                        snippets={getSectionCodeSnippets()[codeSnippetKey]}
+                        title={codeSnippetKey === 'modelRunning' ? 'Running Models' : undefined}
+                    />
+                );
             }
-          />
-        );
-      }
 
       return result;
     };
