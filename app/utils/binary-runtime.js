@@ -18,7 +18,7 @@ async function preprocessBinaryText(text, artifacts) {
   const vector = new Float32Array(5000).fill(0);
   const words = text.toLowerCase().split(/\s+/);
   const wordCounts = Object.create(null);
-  words.forEach((word) => (wordCounts[word] = (wordCounts[word] || 0) + 1));
+  words.forEach(word => (wordCounts[word] = (wordCounts[word] || 0) + 1));
   for (const word in wordCounts) {
     if (vocab[word] !== undefined) {
       vector[vocab[word]] = wordCounts[word] * idf[vocab[word]];
