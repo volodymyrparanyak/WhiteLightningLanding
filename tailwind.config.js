@@ -7,9 +7,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'default': ['var(--font-poppins)', 'system-ui', 'sans-serif'],
-        'heading': ['var(--font-nunito)', 'system-ui', 'sans-serif'],
-        'body': ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        default: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-nunito)', 'system-ui', 'sans-serif'],
+        body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -38,14 +38,16 @@ module.exports = {
         },
       },
       boxShadow: {
-        'card': '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
-        'card-hover': '0 10px 20px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
-        'button': '0 2px 4px rgba(59, 130, 246, 0.3)',
+        card: '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
+        'card-hover':
+          '0 10px 20px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
+        button: '0 2px 4px rgba(59, 130, 246, 0.3)',
         'button-hover': '0 4px 8px rgba(59, 130, 246, 0.4)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'gradient-conic':
+          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
       },
       typography: {
@@ -109,7 +111,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
-}
+  plugins: [require('@tailwindcss/typography')],
+};

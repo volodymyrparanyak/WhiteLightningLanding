@@ -5,6 +5,7 @@ Ready to unleash your WhiteLightning.ai ONNX multiclass models? These snippets s
 ### Preprocessing: Tokenizing the Text
 
 The multiclass model expects a 30-dimensional `int32` vector of token IDs, created from text using a pre-trained tokenizer. Here’s how it works:
+
 - **Text Input**: Start with a string (e.g., "The government announced new policies").
 - **Tokenization**: Convert words to lowercase and map them to integer IDs using a tokenizer vocabulary (from `_tokenizer.json`). Unknown words use the `<OOV>` token (default ID: 1).
 - **Padding/Truncation**: Truncate to 30 tokens and pad with zeros to ensure a fixed-length sequence.
@@ -13,6 +14,7 @@ The multiclass model expects a 30-dimensional `int32` vector of token IDs, creat
 ### Inference: Classifying the Text
 
 Once preprocessed, the input is fed into the ONNX model for classification:
+
 - **Model Loading**: Load the ONNX model (`news_classifier.onnx`) using the ONNX Runtime.
 - **Inference**: Pass the `[1, 30]` `int32` tensor to the model, which outputs a softmax probability distribution over classes.
 - **Label Mapping**: Load the label map (from `_scaler.json`) to convert the highest-probability index to a class name (e.g., "Politics").
